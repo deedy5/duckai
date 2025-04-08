@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools", "mypy[mypyc]", "orjson", "primp"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "duckai"
+version = "0.1.0"
+description = "AI chat using the DuckDuckGo.com search engine"
+readme = "README.md"
+authors = [
+    { name = "deedy5" }
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "click>=8.1.8",
+    "primp>=0.14.0",
+    "stpyv8>=13.1.201.22",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy[mypyc]>=1.15.0",
+    "orjson>=3.10.16",
+    "pytest>=8.3.4",
+    "ruff>=0.11.4",
+    # stubs
+    "types-setuptools>=78.1.0.20250329",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/deedy5/duckai"
+
+[project.scripts]
+duckai = "duckai.cli:safe_entry_point"
+
+[tool.ruff]
+line-length = 120
+exclude = ["tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle
+    "F",  # Pyflakes
+    "UP",  # pyupgrade
+    "B",  # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",  # isort
+]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+exclude = ["build/"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["duckai"]
+exclude = ["duckai/libs*"]
+
+[tool.cibuildwheel]
+# Skip 32-bit builds, PyPy wheels
+skip = ["*-win32", "*-manylinux_i686", "*-musllinux*", "pp*"]
