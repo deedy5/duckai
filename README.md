@@ -3,6 +3,14 @@
 
 AI chat using the DuckDuckGo.com search engine.
 
+‼️ Chat ratelimit: `1 request per 15 seconds`
+
+*Supported OS*:
+
+    🐧 Linux: amd64
+    🪟 Windows: amd64
+    🍏 macOS: amd64, arm64
+
 ## Table of Contents
 * [Install](#install)
 * [CLI version](#cli-version)
@@ -13,6 +21,7 @@ AI chat using the DuckDuckGo.com search engine.
 * [Disclaimer](#disclaimer)
 
 ## Install
+
 ```python
 pip install -U duckai
 ```
