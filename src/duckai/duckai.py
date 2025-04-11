@@ -11,7 +11,7 @@ from typing import Any, Literal
 import primp
 
 from .exceptions import ConversationLimitException, DuckAIException, RatelimitException, TimeoutException
-from .libs.utils_chat import build_x_vqd_hash_1
+from .libs.utils_chat import HashBuilder
 from .utils import (
     _expand_proxy_tb_alias,
     json_loads,
@@ -45,6 +45,7 @@ class DuckAI:
         "mistral-small-3": "mistralai/Mistral-Small-24B-Instruct-2501",
     }
     _chat_xfe: str = ""
+    _hashbuilder = HashBuilder()
 
     def __init__(
         self,
@@ -158,7 +159,7 @@ class DuckAI:
             self._chat_vqd_hash = resp.headers.get("x-vqd-hash-1", "")
 
         # x-vqd-hash-1
-        self._chat_vqd_hash = build_x_vqd_hash_1(self._chat_vqd_hash, self.client.headers)
+        self._chat_vqd_hash = self._hashbuilder.build_hash(self._chat_vqd_hash, self.client.headers)
 
         self._chat_messages.append({"role": "user", "content": keywords})
         self._chat_tokens_count += max(len(keywords) // 4, 1)  # approximate number of tokens
