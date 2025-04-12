@@ -2,20 +2,25 @@ from __future__ import annotations
 
 import importlib.metadata
 import logging
-import sys
 from pathlib import Path
 from typing import Any
 
 import click
+from prompt_toolkit import prompt
+from prompt_toolkit.formatted_text import HTML
+from rich.console import Console
+from rich.live import Live
+from rich.markdown import Markdown
 
 from .duckai import DuckAI
 from .utils import _expand_proxy_tb_alias, json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
+console = Console()
 
 CHAT_MODEL_CHOICES = {f"{i}": k for i, k in enumerate(DuckAI._chat_models, start=1)}
 CHAT_MODEL_CHOICES_PROMPT = (
-    "DuckDuckGo AI chat. Choose a model:\n"
+    "DuckAI chat. Choose a model:\n"
     + "\n".join([f"[{key}]: {value}" for key, value in CHAT_MODEL_CHOICES.items()])
     + "\n"
 )
@@ -49,7 +54,6 @@ def version() -> str:
 @cli.command()
 @click.option("-l", "--load", is_flag=True, default=False, help="load the last conversation from the json cache")
 @click.option("-p", "--proxy", help="the proxy to send requests, example: socks5://127.0.0.1:9150")
-@click.option("-ml", "--multiline", is_flag=True, default=False, help="multi-line input")
 @click.option("-t", "--timeout", default=30, help="timeout value for the HTTP client")
 @click.option("-v", "--verify", default=True, help="verify SSL when making the request")
 @click.option(
@@ -60,7 +64,7 @@ def version() -> str:
     show_choices=False,
     default="1",
 )
-def chat(load: bool, proxy: str | None, multiline: bool, timeout: float, verify: bool, model: str) -> None:
+def chat(load: bool, proxy: str | None, timeout: float, verify: bool, model: str) -> None:
     """CLI function to perform an interactive AI chat using DuckDuckGo API."""
     client = DuckAI(proxy=_expand_proxy_tb_alias(proxy), verify=verify)
     model = CHAT_MODEL_CHOICES[model]
@@ -75,19 +79,18 @@ def chat(load: bool, proxy: str | None, multiline: bool, timeout: float, verify:
             client._chat_tokens_count = cache.get("tokens", 0)
 
     while True:
-        click.secho(f"You[{model=} tokens={client._chat_tokens_count}]: ", fg="blue", nl=False)
-        if multiline:
-            click.secho(f"""[multiline, send message: ctrl+{"Z" if sys.platform == "win32" else "D"}]""", fg="green")
-            user_input = sys.stdin.read()
-            print()
-        else:
-            user_input = input()
+        user_input = prompt(
+            message=HTML("""<b><style fg="ansired">@you: </style></b>"""),
+            multiline=True,
+        )
         if user_input.strip():
-            click.secho("AI: ", fg="red", nl=False)
-            for chunk in client.chat_yield(keywords=user_input, model=model, timeout=timeout):
-                print(chunk, end="")
-            print()
-
+            output_buffer = ""
+            with Live(Markdown(output_buffer), console=console) as live:
+                for chunk in client.chat_yield(keywords=user_input, model=model, timeout=timeout):
+                    top_message = f"""`@AI[{model=} tokens={client._chat_tokens_count}]:`"""
+                    output_buffer += chunk
+                    result = f"{top_message}\n\n{output_buffer}"
+                    live.update(Markdown(result))
             cache = {
                 "vqd": client._chat_vqd,
                 "vqd_hash": client._chat_vqd_hash,

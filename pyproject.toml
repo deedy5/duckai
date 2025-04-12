@@ -28,6 +28,8 @@ classifiers = [
 dependencies = [
     "click>=8.1.8",
     "primp>=0.14.0",
+    "prompt-toolkit>=3.0.50",
+    "rich>=14.0.0",
     "stpyv8>=13.1.201.22",
 ]
 
