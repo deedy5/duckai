@@ -205,13 +205,13 @@ class DuckAI:
                                 raise DuckAIException(err_message)
                             elif message := x.get("message"):
                                 chunks.append(message)
+                                self._chat_tokens_count += 1
                                 yield message
         except Exception as ex:
             raise DuckAIException(f"chat_yield() {type(ex).__name__}: {ex}") from ex
 
         result = "".join(chunks)
         self._chat_messages.append({"role": "assistant", "content": result})
-        self._chat_tokens_count += len(result)
 
     def chat(self, keywords: str, model: str = "gpt-4o-mini", timeout: int = 30) -> str:
         """Initiates a chat session with DuckDuckGo AI.
