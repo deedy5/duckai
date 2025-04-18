@@ -35,7 +35,7 @@ CLI examples:
 ```python3
 duckai chat
 ```
-‼️ To send a message in the chat, press the `Esc` key before pressing `Enter` ‼️
+‼️ Press `Esc`, then `Enter`, or `Alt+Enter` to send a message.‼️
 
 [Go To TOP](#TOP)
 
