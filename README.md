@@ -18,6 +18,7 @@ AI chat using the DuckDuckGo.com search engine.
 * [Proxy](#proxy)
 * [Exceptions](#exceptions)
 * [1. chat() - AI chat](#1-chat---ai-chat)
+* [2. chat_yield() - AI chat generator](#2-chat_yield---ai-chat-generator)
 * [Disclaimer](#disclaimer)
 
 ## Install
@@ -42,10 +43,10 @@ duckai chat
 
 ## DuckAI class
 
-The DuckAI classes is used to retrieve chat results from DuckDuckGo.com.
+The DuckAI class is used to retrieve chat results from DuckDuckGo.com and preserves the context of the conversation by sending the contents of all previous requests and responses with each new call to the `chat` or `chat_yield` function.
 ```python3
 class DuckAI:
-    """duckai class to get search results from duckduckgo.com
+    """Class to chat with DuckDuckGo AI
 
     Args:
         proxy (str, optional): proxy for the HTTP client, supports http/https/socks5 protocols.
@@ -72,7 +73,7 @@ Use a rotating proxy. Otherwise, use a new proxy with each DuckAI class initiali
 
 *1. The easiest way. Launch the Tor Browser*
 ```python3
-duckai = DuckAI(proxy="tb", timeout=20)  # "tb" is an alias for "socks5://127.0.0.1:9150"
+duckai = DuckAI(proxy="socks5://127.0.0.1:9150", timeout=20)
 results = duckai.chat("something you need", model="mistral-small-3")
 ```
 *2. Use any proxy server* (*example with [iproyal rotating residential proxies](https://iproyal.com?r=residential_proxies)*)
@@ -109,8 +110,8 @@ Exceptions:
 ## 1. chat() - AI chat
 
 ```python
-def chat(self, keywords: str, model: str = "gpt-4o-mini", timeout: int = 30) -> str:
-    """Initiates a chat session with DuckDuckGo AI.
+def chat(keywords: str, model: str = "gpt-4o-mini", timeout: int = 30) -> str:
+    """Chat with DuckDuckGo AI.
 
     Args:
         keywords (str): The initial message or question to send to the AI.
@@ -124,10 +125,36 @@ def chat(self, keywords: str, model: str = "gpt-4o-mini", timeout: int = 30) -> 
 ```
 ***Example***
 ```python
-results = DuckAI().chat("summarize Daniel Defoe's The Consolidator", model='claude-3-haiku')
+from duckai import DuckAI
 
-# There is also `chat_yield` generator which yields chunks while a response is being processed:
-for x in DuckAI().chat_yield("How Do Airplanes Fly", model='llama-3.3-70b'):
+duckai = DuckAI()
+results = duckai.chat("summarize Daniel Defoe's The Consolidator", model='claude-3-haiku')
+```
+
+## 2. chat_yield() - AI chat generator
+
+Generator which yields chunks while a response is being processed
+
+```python
+def chat_yield(self, keywords: str, model: str = "gpt-4o-mini", timeout: float = 30) -> Iterator[str]:
+    """Chat with DuckDuckGo AI generator.
+
+    Args:
+        keywords (str): The initial message or question to send to the AI.
+        model (str): The model to use: "gpt-4o-mini", "llama-3.3-70b", "claude-3-haiku",
+            "o3-mini", "mistral-small-3". Defaults to "gpt-4o-mini".
+        timeout (int): Timeout value for the HTTP client. Defaults to 20.
+
+    Yields:
+        str: Chunks of the response from the AI.
+    """
+```
+***Example***
+```python
+from duckai import DuckAI
+
+duckai = DuckAI()
+for x in duckai.chat_yield("How Do Airplanes Fly", model='llama-3.3-70b'):
     print(x)
 ```
 
